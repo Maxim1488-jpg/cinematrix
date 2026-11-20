@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineMatrix - Афиша</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #0b0f19;
+            color: #e2e8f0;
+            line-height: 1.5;
+        }
+        header {
+            background-color: #111827;
+            border-bottom: 1px solid #1f2937;
+            padding: 16px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .nav-left { display: flex; align-items: center; gap: 30px; }
+        .logo {
+            font-size: 22px;
+            font-weight: 800;
+            color: #ffffff;
+            text-decoration: none;
+            letter-spacing: 0.5px;
+        }
+        .logo span { color: #e50914; }
+        .nav-links { display: flex; gap: 20px; align-items: center; }
+        .nav-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover, .nav-links a.active { color: #ffffff; }
+
+        .header-search { display: flex; gap: 6px; align-items: center; }
+        .search-input {
+            background-color: #0b0f19;
+            border: 1px solid #374151;
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            width: 200px;
+        }
+        .search-input:focus { border-color: #e50914; outline: none; }
+        .search-btn {
+            background-color: #e50914;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .search-btn:hover { background-color: #b91c1c; }
+
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+        
+        /* СТРОГО фиксированные цвета для кнопок входа и регистрации */
+        .nav-right a.btn-outline { 
+            background-color: #ffffff !important; 
+            color: #0b0f19 !important; 
+            border: 1px solid #ffffff !important; 
+            padding: 7px 16px !important; 
+            border-radius: 6px !important; 
+            text-decoration: none !important; 
+            font-weight: 600 !important;
+        }
+        .nav-right a.btn-outline:hover { background-color: #e2e8f0 !important; }
+
+        .nav-right a.btn-primary { 
+            background-color: #e50914 !important; 
+            color: #ffffff !important; 
+            border: 1px solid #e50914 !important;
+            padding: 7px 16px !important; 
+            border-radius: 6px !important; 
+            text-decoration: none !important; 
+            font-weight: 600 !important;
+        }
+        .nav-right a.btn-primary:hover { background-color: #b91c1c !important; }
+
+        .container { max-width: 1140px; margin: 35px auto; padding: 0 20px; }
+        .alert {
+            background-color: #1e293b;
+            border-left: 4px solid #10b981;
+            color: #a7f3d0;
+            padding: 14px 18px;
+            border-radius: 6px;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+        h2 { font-size: 24px; color: #ffffff; margin-bottom: 20px; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 24px;
+        }
+        .card {
+            background-color: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 12px;
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .badges { display: flex; gap: 8px; margin-bottom: 12px; }
+        .badge {
+            background-color: #1f2937;
+            color: #9ca3af;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .badge.age { background-color: rgba(229, 9, 20, 0.15); color: #f87171; }
+        .card h3 { font-size: 20px; color: #ffffff; margin-bottom: 6px; }
+        .desc { font-size: 13px; color: #94a3b8; margin-bottom: 12px; }
+        .meta { font-size: 13px; color: #cbd5e1; margin-bottom: 16px; background: #0b0f19; padding: 10px; border-radius: 8px; }
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid #1f2937;
+            margin-bottom: 14px;
+        }
+        .price { font-size: 18px; font-weight: 700; color: #ffffff; }
+
+        .hall-box {
+            display: none;
+            background-color: #0b0f19;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #1f2937;
+            margin-bottom: 12px;
+            position: relative;
+        }
+        .hall-box.active { display: block; }
+
+        .close-hall {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .close-hall:hover { color: #fff; }
+
+        .screen {
+            text-align: center;
+            font-size: 11px;
+            color: #64748b;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 4px;
+            margin-bottom: 12px;
+            letter-spacing: 2px;
+        }
+        .seats-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 5px;
+            margin-bottom: 12px;
+        }
+        .seat {
+            height: 24px;
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 4px;
+            font-size: 10px;
+            color: #94a3b8;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .seat:hover:not(.occupied) { background-color: #3b82f6; color: white; border-color: #3b82f6; }
+        .seat.selected { background-color: #10b981; color: #064e3b; font-weight: bold; border-color: #10b981; }
+        .seat.occupied { background-color: #374151; color: #6b7280; cursor: not-allowed; opacity: 0.45; }
+
+        .action-btn {
+            width: 100%;
+            padding: 11px;
+            background-color: #e50914;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        .action-btn:hover { background-color: #b91c1c; }
+        .selected-info { font-size: 12px; color: #94a3b8; margin-bottom: 8px; text-align: center; }
+
+        .tickets-section { margin-top: 50px; }
+        .ticket-item {
+            background-color: #111827;
+            border: 1px solid #1f2937;
+            border-left: 4px solid #e50914;
+            padding: 14px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .cancel-btn {
+            background: transparent;
+            border: 1px solid #4b5563;
+            color: #9ca3af;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .cancel-btn:hover { border-color: #ef4444; color: #ef4444; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="nav-left">
+        <a href="/" class="logo">CINE<span>MATRIX</span></a>
+        <div class="nav-links">
+            <a href="/" class="active">Афиша</a>
+            <a href="/movies">Фильмы</a>
+        </div>
+        <form action="/" method="GET" class="header-search">
+            <input type="text" name="q" class="search-input" placeholder="Поиск фильма..." value="{{ search_query }}">
+            <button type="submit" class="search-btn">Найти</button>
+        </form>
+    </div>
+    <div class="nav-right">
+        {% if session.username %}
+            <span style="color: #94a3b8; font-size: 14px;">Привет, <strong style="color:#fff;">{{ session.username }}</strong></span>
+            <a href="/logout" class="btn-outline">Выйти</a>
+        {% else %}
+            <a href="/login" class="btn-outline">Войти</a>
+            <a href="/register" class="btn-primary">Регистрация</a>
+        {% endif %}
+    </div>
+</header>
+
+<div class="container">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <h2>Актуальные сеансы</h2>
+
+    {% if sessions %}
+    <div class="grid">
+        {% for s in sessions %}
+        <div class="card">
+            <div>
+                <div class="badges">
+                    <span class="badge age">{{ s.age_rating }}</span>
+                    <span class="badge">{{ s.genre }}</span>
+                    <span class="badge">{{ s.hall_type }}</span>
+                </div>
+                <h3>{{ s.title }}</h3>
+                <p class="desc">{{ s.description }}</p>
+                <div class="meta">
+                    <div><strong>Время:</strong> {{ s.start_time }}</div>
+                    <div><strong>Зал:</strong> {{ s.hall_name }} ({{ s.duration_minutes }} мин.)</div>
+                </div>
+            </div>
+
+            <div>
+                <div class="price-row">
+                    <span style="font-size: 13px; color: #94a3b8;">Цена билета</span>
+                    <span class="price">{{ s.base_price | int }} ₸</span>
+                </div>
+
+                <div class="hall-box" id="hall-box-{{ s.session_id }}">
+                    <button type="button" class="close-hall" onclick="closeHall('{{ s.session_id }}')" title="Закрыть">✕</button>
+                    <div class="screen">ЭКРАН</div>
+                    <div class="seats-grid">
+                        {% for r in range(1, 5) %}
+                            {% for seat in range(1, 9) %}
+                                {% set key = r ~ '-' ~ seat %}
+                                {% if key in s.booked %}
+                                    <div class="seat occupied" title="Занято">×</div>
+                                {% else %}
+                                    <div class="seat" data-session="{{ s.session_id }}" data-row="{{ r }}" data-seat="{{ seat }}" onclick="onSeatClick(this, '{{ s.session_id }}')">{{ r }}:{{ seat }}</div>
+                                {% endif %}
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                    <div class="selected-info" id="info-{{ s.session_id }}">Выберите место</div>
+                </div>
+
+                <form action="/buy" method="POST" id="form-{{ s.session_id }}" onsubmit="return handleFormSubmit(event, '{{ s.session_id }}')">
+                    <input type="hidden" name="session_id" value="{{ s.session_id }}">
+                    <input type="hidden" name="row_number" id="row-{{ s.session_id }}">
+                    <input type="hidden" name="seat_number" id="seat-{{ s.session_id }}">
+                    <button type="button" class="action-btn" id="btn-{{ s.session_id }}" onclick="onMainBtnClick('{{ s.session_id }}')">Купить билет</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center; padding: 40px; background:#111827; border-radius:12px; border:1px solid #1f2937; color:#94a3b8;">
+        Сеансов по вашему запросу не найдено.
+    </div>
+    {% endif %}
+
+    {% if session.username and my_tickets %}
+    <div class="tickets-section">
+        <h2>Мои купленные билеты</h2>
+        {% for t in my_tickets %}
+        <div class="ticket-item">
+            <div>
+                <strong>{{ t.title }}</strong> — {{ t.hall_name }} ({{ t.start_time }})
+            </div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <span>Ряд <strong>{{ t.row_number }}</strong>, Место <strong>{{ t.seat_number }}</strong> • <span style="color:#10b981;">{{ t.base_price | int }} ₸</span></span>
+                <form action="/cancel/{{ t.ticket_id }}" method="POST" style="margin:0;">
+                    <button type="submit" class="cancel-btn">Вернуть билет</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    function onMainBtnClick(sessionId) {
+        const hallBox = document.getElementById('hall-box-' + sessionId);
+        const btn = document.getElementById('btn-' + sessionId);
+
+        if (!hallBox.classList.contains('active')) {
+            hallBox.classList.add('active');
+            btn.innerText = 'Выберите место';
+            btn.disabled = true;
+            btn.style.opacity = '0.6';
+            btn.style.cursor = 'not-allowed';
+        }
+    }
+
+    function closeHall(sessionId) {
+        const hallBox = document.getElementById('hall-box-' + sessionId);
+        const btn = document.getElementById('btn-' + sessionId);
+        
+        hallBox.classList.remove('active');
+        
+        document.getElementById('row-' + sessionId).value = '';
+        document.getElementById('seat-' + sessionId).value = '';
+        document.getElementById('info-' + sessionId).innerText = 'Выберите место';
+        
+        hallBox.querySelectorAll('.seat').forEach(s => s.classList.remove('selected'));
+
+        btn.innerText = 'Купить билет';
+        btn.type = 'button';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+    }
+
+    function onSeatClick(element, sessionId) {
+        const cardBox = element.closest('.card');
+        cardBox.querySelectorAll('.seat').forEach(s => s.classList.remove('selected'));
+        element.classList.add('selected');
+
+        const row = element.getAttribute('data-row');
+        const seat = element.getAttribute('data-seat');
+
+        document.getElementById('row-' + sessionId).value = row;
+        document.getElementById('seat-' + sessionId).value = seat;
+        document.getElementById('info-' + sessionId).innerText = `Выбрано: Ряд ${row}, Место ${seat}`;
+
+        const btn = document.getElementById('btn-' + sessionId);
+        btn.innerText = 'Подтвердить';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        btn.type = 'submit';
+    }
+
+    function handleFormSubmit(event, sessionId) {
+        const rowVal = document.getElementById('row-' + sessionId).value;
+        if (!rowVal) {
+            alert('Пожалуйста, выберите место на схеме!');
+            return false;
+        }
+
+        const confirmed = confirm('Переход к защищенной онлайн-оплате. Нажмите ОК для подтверждения платежа.');
+        if (!confirmed) {
+            event.preventDefault();
+            return false;
+        }
+        return true;
+    }
+</script>
+
+</body>
+</html>

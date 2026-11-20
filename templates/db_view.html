@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8"><title>База данных</title>
+    <style>body { font-family: Arial; margin: 30px; } table { border-collapse: collapse; width: 100%; margin-bottom: 30px; } th, td { border: 1px solid #ccc; padding: 8px; text-align: left; } th { background: #333; color: white; }</style>
+</head>
+<body>
+<a href="/">← На сайт</a>
+<h1>База данных (cinema.db)</h1>
+<h3>users</h3>
+<table><tr><th>id</th><th>username</th><th>email</th><th>password</th></tr>{% for u in users %}<tr><td>{{ u.user_id }}</td><td>{{ u.username }}</td><td>{{ u.email }}</td><td>{{ u.password }}</td></tr>{% endfor %}</table>
+<h3>movies</h3>
+<table><tr><th>id</th><th>title</th><th>genre</th><th>duration</th><th>rating</th></tr>{% for m in movies %}<tr><td>{{ m.movie_id }}</td><td>{{ m.title }}</td><td>{{ m.genre }}</td><td>{{ m.duration_minutes }}</td><td>{{ m.age_rating }}</td></tr>{% endfor %}</table>
+<h3>halls</h3>
+<table><tr><th>id</th><th>name</th><th>type</th></tr>{% for h in halls %}<tr><td>{{ h.hall_id }}</td><td>{{ h.name }}</td><td>{{ h.hall_type }}</td></tr>{% endfor %}</table>
+<h3>sessions</h3>
+<table><tr><th>id</th><th>movie_id</th><th>hall_id</th><th>time</th><th>price</th></tr>{% for s in sessions %}<tr><td>{{ s.session_id }}</td><td>{{ s.movie_id }}</td><td>{{ s.hall_id }}</td><td>{{ s.start_time }}</td><td>{{ s.base_price }}</td></tr>{% endfor %}</table>
+<h3>tickets (JOIN)</h3>
+<table><tr><th>id</th><th>User</th><th>Movie</th><th>Time</th><th>Row</th><th>Seat</th></tr>{% for t in tickets %}<tr><td>{{ t.ticket_id }}</td><td>{{ t.username }}</td><td>{{ t.title }}</td><td>{{ t.start_time }}</td><td>{{ t.row_number }}</td><td>{{ t.seat_number }}</td></tr>{% endfor %}</table>
+</body>
+</html>

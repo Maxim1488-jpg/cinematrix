@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineMatrix — Каталог фильмов</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #0b0f19;
+            color: #e2e8f0;
+            line-height: 1.5;
+        }
+        header {
+            background-color: #111827;
+            border-bottom: 1px solid #1f2937;
+            padding: 16px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .nav-left { display: flex; align-items: center; gap: 30px; }
+        .logo {
+            font-size: 22px;
+            font-weight: 800;
+            color: #ffffff;
+            text-decoration: none;
+            letter-spacing: 0.5px;
+        }
+        .logo span { color: #e50914; }
+        .nav-links { display: flex; gap: 20px; align-items: center; }
+        .nav-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .nav-links a:hover, .nav-links a.active { color: #ffffff; }
+
+        .header-search { display: flex; gap: 6px; align-items: center; }
+        .search-input {
+            background-color: #0b0f19;
+            border: 1px solid #374151;
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            width: 200px;
+        }
+        .search-input:focus { border-color: #e50914; outline: none; }
+        .search-btn {
+            background-color: #e50914;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .search-btn:hover { background-color: #b91c1c; }
+
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+        nav a.btn-outline { 
+            background-color: #ffffff; 
+            color: #0b0f19 !important; 
+            border: 1px solid #ffffff; 
+            padding: 7px 16px; 
+            border-radius: 6px; 
+            text-decoration: none; 
+            font-weight: 600;
+        }
+        nav a.btn-outline:hover { background-color: #e2e8f0; }
+
+        nav a.btn-primary { 
+            background-color: #e50914; 
+            color: #ffffff !important; 
+            border: 1px solid #e50914;
+            padding: 7px 16px; 
+            border-radius: 6px; 
+            text-decoration: none; 
+            font-weight: 600;
+        }
+        nav a.btn-primary:hover { background-color: #b91c1c; }
+
+        .container { max-width: 1140px; margin: 35px auto; padding: 0 20px; }
+        
+        .controls-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 28px;
+            background-color: #111827;
+            padding: 16px 20px;
+            border-radius: 12px;
+            border: 1px solid #1f2937;
+        }
+        .genre-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+        .genre-tab {
+            padding: 7px 14px;
+            border-radius: 20px;
+            background-color: #1f2937;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .genre-tab:hover { background-color: #374151; color: #fff; }
+        .genre-tab.active { background-color: #e50914; color: #ffffff; }
+
+        h2 { font-size: 24px; color: #ffffff; margin-bottom: 20px; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+        .movie-card {
+            background-color: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .badges { display: flex; gap: 8px; margin-bottom: 10px; }
+        .badge {
+            background-color: #1f2937;
+            color: #9ca3af;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .badge.age { background-color: rgba(229, 9, 20, 0.15); color: #f87171; }
+        .movie-card h3 { font-size: 18px; color: #ffffff; margin-bottom: 6px; }
+        .desc { font-size: 13px; color: #94a3b8; margin-bottom: 14px; }
+        .duration { font-size: 12px; color: #64748b; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="nav-left">
+        <a href="/" class="logo">CINE<span>MATRIX</span></a>
+        <div class="nav-links">
+            <a href="/">Афиша</a>
+            <a href="/movies" class="active">Фильмы</a>
+        </div>
+        <form action="/movies" method="GET" class="header-search">
+            {% if selected_genre != 'Все' %}
+                <input type="hidden" name="genre" value="{{ selected_genre }}">
+            {% endif %}
+            <input type="text" name="q" class="search-input" placeholder="Поиск фильма..." value="{{ search_query }}">
+            <button type="submit" class="search-btn">Найти</button>
+        </form>
+    </div>
+    <div class="nav-right">
+        {% if session.username %}
+            <span style="color: #94a3b8; font-size: 14px;">Привет, <strong style="color:#fff;">{{ session.username }}</strong></span>
+            <a href="/logout" class="btn-outline">Выйти</a>
+        {% else %}
+            <a href="/login" class="btn-outline">Войти</a>
+            <a href="/register" class="btn-primary">Регистрация</a>
+        {% endif %}
+    </div>
+</header>
+
+<div class="container">
+    <div class="controls-bar">
+        <div class="genre-tabs">
+            {% for g in genres %}
+                <a href="/movies?genre={{ g }}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                   class="genre-tab {% if selected_genre == g %}active{% endif %}">
+                   {{ g }}
+                </a>
+            {% endfor %}
+        </div>
+        {% if search_query or selected_genre != 'Все' %}
+            <a href="/movies" class="genre-tab" style="background:#374151;">Сбросить фильтры</a>
+        {% endif %}
+    </div>
+
+    <h2>Каталог фильмов (Всего: {{ movies | length }})</h2>
+
+    {% if movies %}
+    <div class="grid">
+        {% for m in movies %}
+        <div class="movie-card">
+            <div>
+                <div class="badges">
+                    <span class="badge age">{{ m.age_rating }}</span>
+                    <span class="badge">{{ m.genre }}</span>
+                </div>
+                <h3>{{ m.title }}</h3>
+                <p class="desc">{{ m.description }}</p>
+            </div>
+            <div class="duration">Продолжительность: {{ m.duration_minutes }} мин.</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center; padding: 40px; background:#111827; border-radius:12px; border:1px solid #1f2937; color:#94a3b8;">
+        Фильмов по вашему запросу не найдено.
+    </div>
+    {% endif %}
+</div>
+
+</body>
+</html>
